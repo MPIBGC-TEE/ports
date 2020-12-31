@@ -1,89 +1,187 @@
-# preliminary information 
+# Main objectives in order of relavance
+1. Separation of concerns
+   To actually run our notebooks we are concerned with three very different things,
+   of which only one really belongs to ```bgc_md2'''. The other too threaten its long
+   term integrity:
+   1. code USING a dask cluster (99.9 percent of the notebook / script code 
+      This is the only code that definitely belongs to `bgc_md2' and the only one that
+      is portable.
+   1. code to ADMINISTER the dask cluster (SET UP/START/STOP/CONFIG) 
+      In many use cases this would even be handled by other people (the cluster admins). 
+      Ideally bgc_md2 code should run on any dask cluster and not depend on it.
+      In our case this is not entirely true, since some notebooks use timeouts for computations
+      which excludes clusters with deamonized workers. So our notebooks have to have
+      code that starts a dask cluster with the right properties.
+      If it can not be avoided entirely, (dask)cluster administration specific code should be kept at a minimum,
+      to keep the framework useable elsewhere
+   1. code that is entirely specific to a group of users like the whole module
+      https://github.com/MPIBGC-TEE/bgc_md2/blob/master/src/bgc_md2/sitespecificHelpers.py
+      or the user specific parts of `prepare_cluster' in
+      https://github.com/MPIBGC-TEE/bgc_md2/blob/master/src/bgc_md2/models/CARDAMOM/CARDAMOMlib.py
+      This code had only intermediate purpose (to avoid spreading of a
+      preliminary solution to all notebooks) and has lost its temporary
+      justification by the new approach proposed here, which outsources these aspects and only requires
+      a minimal and obvious bit of code in the notebooks.
 
-* Server applications provide their services to ports  
-  Examples are jupyter notebook servers, dask dashboards 
+1. Explicitness
+      To be self contained the notebooks have to have a minimum of code that does not belong to `bgc_md2',
+      for instance code that starts a cluster if none is found already running.
+      This code should not be buried in a library, but visible in plain sight of future users of the notebooks so that it
+      can be easily replaced according to their needs. 
+
+1. Deduplication
+      This will be achieved by the advanced examples mainly by code that is well separated from the package and completely
+      under user control. Some duplication will remain, where it would conflict with a clear separation of `bgc_md2' or 
+      reduce explicitness. For instance it is likely that many notebooks will share  a common first cell that 
+      ensures the existence of a running dask cluster and connects to it. Although some of these cells could be put into 
+      a library function, this would most likely lead to a function returning the cluster connection thereby 
+      1. burdening our libraries with code that does not realy belong to bgc_md2 (separation of concerns)
+      1. obscuring the fact that any cluster would do (reducing explicitness)
+
+
+
+# Some bits of information that affects us 
+
+* Server applications provide their services to ports.  
+  Examples are jupyter notebook servers, dask dashboards but also normal web servers (port80) 
 
 * the 2^16 ports are a system resource shared by all users and applications
-  There are some guidelines about who should listen where https://en.wikipedia.org/wiki/Port_(computer_networking)
-  but for our purposes
-  its a matter of choice and mainly a question of keeping out of each others way.
+  There are some guidelines about who should listen where
+  https://en.wikipedia.org/wiki/Port_(computer_networking). 
+  By default the two server application we need use use either a fixed default port  (8888 for the jupyter notebook
+  server and 8787 for the dask dashboard server) or (in case somebody has already started one of them on the same
+  machine ) 
+  an unpredictable dynamic port from the dynamic range.
+  We could forward this port after the app chose it but could not automate the process.
+  Our strategy will therefore be to specify to which ports the notebook and the dashboard will be served to and plumb
+  our forwarding accordingly. The only thing to avoid is that two people try to use the same port.
+  A simple scheme of a personalized port range will avoid this.
+  
 
 * The same dask cluster can be used by many clients (in many notebooks) simultanuously
-* Several dask clusters per machine are possible, but the fewer the better.
-  The optimal solution for a high performance computing scenario would be a
-  single cluster per machine shared by all users and all clients, since a single
-  cluster can handle any number of clients and can share the available resources
-  between them. If its the only cluster on the machine it could use all the
-  available resources and distribute them efficiently between all the clients.
-  A single cluster shared by all user would however again
-  necessiate some maintainance and precautions. In case of a failure it would
-  affect all users and make it difficult to switch off without fear of
-  interrupting someone else's work.  If we run many clusters we will have to make
-  sure that they do not assume the complete resources of the machine, especially
-  memory wise.  
-  One cluster per user is again a compromise to gain flexibility at
-  the cost of perfect resource distribution as long as the number of users is
-  very small.
+* How many dask clusters should we run? There are some possibilities.
+  * One,
+    This would be the optimal solution for a high performance computing scenario where a 
+    single dask cluster per (machine or hardware cluster) is shared by all users and all clients, since a single
+    cluster can handle any number of clients and can share the available resources
+    between them. 
+    A single cluster shared by all user would however again
+    necessiate some maintainance and precautions. In case of a failure it affects
+    affect all users and makes it difficult to switch off without fear of
+    interrupting someone else's work. 
+  * As many as we have (active) notebooks..,
+    If we instead run many clusters we will have to make
+    sure that they do not assume the complete resources of the machine, especially
+    memory wise. 
+  * One cluster per user 
+    This is a compromise to gain flexibility at
+    the cost of perfect resource distribution as long as the number of users is
+    very small. In practice It turns out that this setup is not much safer against
+    oversubscribing (memory wise) but this can be usefull for running small tests.
+    (If a notebook connects to an existing dask cluster one does not have to tear down and setup the complete set of workers all the time.
+    which can take 20 seconds...)
+    This makes testing dask code nearly as fast as normal python code. Therefore many of the examples use this techniqe.
+    Especially for some of our notebooks, which require a cluster started with certain arguments (Holgers CARDAMOM notebooks) 
+    it is essecntial to provide the code to start such a cluster in the notebook. (the opposite would require the user to "know" that the notebook requires a special running cluster.
 
 * To achieve robustness and general independence from network connections to the server we use a terminal multiplexer for all text based output on the server (tmux)
   From the perspective of the server the tmux server looks like a local (server) 
-  konsole window it can send its output to regardless of any network connection.
-  The network connection is only necessary when can connect to the tmux server from 
+  console window it can send its output to, regardless of any network connection.
+  The network connection is only necessary when we connect to the tmux server from 
   a different machine.
+  Two tmux commands that you will find using a lot in our scenario are```tmux ls''' (list sessions) and ```tmux attach -t ${NameOfYourSession}'''
 
-# Example using ipython 
+* Since we use 'local ssh port forwarding' the start messages from a jupyter server about where to point the browser
+  are most likely wrong, because they refer to the  port on the remote server. The server has no information to 
+  which local port is forwarded. 
 
-## port consumption
-The only ports we have to worry about are the 
-* dask cluster/sheduler port
-  We do not actively communicate with the cluster but fixing its ports provides 
-  the possibility to detect the presence of a running cluster and reuse it from 
-  several ipython sessions. This is 
-  * faster since startup and tear down of a cluster take some seconds
-  * more efficient because we dont have to share resources (especially memory) 
-  q  manually between different ipython sessions.
+* The institutes login node ```login.bgc-jena.mpg.de''' prohibits port forwarding so that some copy and paste code from
+  the internet will not work and not all the online information about local port forwarding is applicable.
+  The examples will therefore require either a vpn connection or some
+  tweaking of your ~/.ssh/config file .
 
-* the port of the dask dashboard(s) 
 
-## code examples
-### ipython in a tmux session
+# Examples 
 
-#### Plan:
-*  We start with a minimal python code that we want to run.
-*  We show the commands (on client and server) necessary to 
+The purpose of the examples is to show:
+* what is necessarry to run and use dask clusters on several remote machines
+* how to control which ports are being used and how to use this ability to implement a convention about who uses which ports
+* how to automate and deduplicate these things
+* what minimum of code is necessary in the notebooks to allow this way of remote control.
+
+# requirement
+Add the following to your ```~/.ssh/config''' with  YourInstituteLogin and  YourMatagordaLogin
+replaced by the correct values:
+```
+Host    login
+	HostName login.bgc-jena.mpg.de
+        User YourInstituteLogin
+
+Host    matagorda-from-home
+	ProxyCommand ssh -q -W %h:%p login
+	HostName matagorda.bgc-jena.mpg.de
+        User YourMatagordaLogin
+'''
+This will make it work even if you do not have a vpn connection to the institute (using login as jumphost).
+
+##The order of the eamples:
+* We start with a manual (unautomated) example, that 
+  demonstates the commands (on client and server) necessary to 
   * open a tmux window
   * activate the (conda) environment
-  * start an ipython session 
+  * start an ipython session (or notebook)
   * connect via ssh from a client machine over the network 
-  * redirect the web output of the dask dashboard to a port on the local machine
+  * redirect the web output of the dask dashboard (and jupyter server) to a port on the local machine
   * start the browser on the local client with the correct port number.
-*  We then build a single shell command executable on the client that
-   automates all the above steps.
+  We show the annoying aspects of it and use them
+  to motivate gradual improvements leading to the next implementation.
+* After the example code has improved overs several iterations (ex1 to ex4) 
+  we will have build a single shell command executable on the client that
+  automates all the above steps`.
+  But even this final code is not intended to be used as a black box tool but as an example.
 
-## The python code:
-```python
-import os
-from dask.distributed import LocalCluster, Client
+## 0. Example without any infrastructure.
+* open a terminal and open a shell on the remote machine
+  ```ssh matagorda-from-home'''
+* start a tmux session 
+  ``` tmux '''
+* activate the conda env
+  ```conda activate bgc_md2'''
+* start an ipython session
+  ```ipython'''
+* start a cluster 
+  ```python
+  from dask.distributed import LocalCluster, Client
+  cluster=LocalCluster()
+  '''
+* ask for the dashboard address
+  ```python
+  cluster.dashboard_link
+  '''
+* open another terminal
+  and forward a local port (we arbitrarily chose 8080)  on your machine to the dashboard port returned by  the previous command (here 36167 but this will be chosen by ``` LocalCluster()''' and can possibly be different from session to session  )
+  ```
+  ssh -L 8080:localhost:36167 matagorda-from-home
+  '''
+* point your browser to `http://localhost:8080` and see the dashboard.
 
-if os.environ.hasmy_scheduler_port]
-my_scheduler_port 
 
 
-
-# Motivational Example with notebooks: most general usage scenario:#
-Assume you have two or more different conda environments on matagorda and
-running at least one notebook for each.  This has the following consequences:
-Since the jupyter (notebook or lab) server is started in the same conda env
-that is used by the code in the notebooks you wll have to start two different
-jupyter servers on matagorda.  They will use two different ports jsp1, jsp2 on
-matagorda.  If the notebooks use a dask clients every client will use its own
-dashboard with its own port.  All clients may (and should) use the same
-scheduler or cluster.  
-
- We have the following summary of port consumption on one machine for one user:
- ```n_envs + n_client + n_cluster```   where 
- - `n_envs` is the number of conda environments with their respective jupyterservers
- - `n_clients` is the number of clients (and equal to the number of notebooks that use dask)
-
-To be able to connect to these servers with the browser on your local machine you will have to forward the two ports. 
+% 
+% # Motivational Example with notebooks: most general usage scenario:#
+% Assume you have two or more different conda environments on matagorda and
+% running at least one notebook for each.  This has the following consequences:
+% Since the jupyter (notebook or lab) server is started in the same conda env
+% that is used by the code in the notebooks you wll have to start two different
+% jupyter servers on matagorda.  They will use two different ports jsp1, jsp2 on
+% matagorda.  If the notebooks use a dask clients every client will use its own
+% dashboard with its own port.  All clients may (and should) use the same
+% scheduler or cluster.  
+% 
+%  We have the following summary of port consumption on one machine for one user:
+%  ```n_envs + n_client + n_cluster```   where 
+%  - `n_envs` is the number of conda environments with their respective jupyterservers
+%  - `n_clients` is the number of clients (and equal to the number of notebooks that use dask)
+% 
+% To be able to connect to these servers with the browser on your local machine you will have to forward the two ports. 
   
