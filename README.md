@@ -1,28 +1,29 @@
+
 Table of Contents
 =================
 
-      * [Purpose](#purpose)
-         * [1. Separation of concerns](#1-separation-of-concerns)
-         * [2. Explicitness](#2-explicitness)
-         * [3. Deduplication](#3-deduplication)
-      * [Some bits of information that affects us](#some-bits-of-information-that-affects-us)
-         * [Ports](#ports)
-         * [(DASK) clusters](#dask-clusters)
-         * [Tmux](#tmux)
-         * [SSH local port forwarding](#ssh-local-port-forwarding)
+   * [Purpose](#purpose)
+      * [1. Separation of concerns](#1-separation-of-concerns)
+      * [2. Explicitness](#2-explicitness)
+      * [3. Deduplication](#3-deduplication)
+   * [Used tech](#used-tech)
+      * [Ports](#ports)
+      * [(DASK) clusters](#dask-clusters)
+      * [Tmux](#tmux)
+      * [SSH local port forwarding](#ssh-local-port-forwarding)
    * [Examples](#examples)
       * [Requirement to run the examples](#requirement-to-run-the-examples)
-      * [Order of the examples:](#order-of-the-examples)
+      * [Order](#order)
 
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
-
-## Purpose
+# Purpose
 The package contains examples to facilitate remote computing on matagorda and Antakya mainly concerned with the use of 
 [bgc_md2](https://github.com/MPIBGC-TEE/bgc_md2). 
 It serves as a gentle use case specific introduction to some of the tools (ssh,tmux,ipython,dask.distributed.LocalCluster). 
 Its **main purpose** however is to isolate this site and user specific code.
 This is important for the following reasons:
-### 1. Separation of concerns
+## 1. Separation of concerns
 To actually run our [bgc_md2](https://github.com/MPIBGC-TEE/bgc_md2) notebooks we are concerned with three very different things,
 of which only one really belongs to [bgc_md2](https://github.com/MPIBGC-TEE/bgc_md2) . 
 The other too threaten its long term integrity:
@@ -45,13 +46,13 @@ The other too threaten its long term integrity:
       preliminary solution to all notebooks) and has lost its temporary
       justification by the new approach proposed here, which outsources these aspects and only requires
       a minimal and obvious bit of code in the notebooks.
-### 2. Explicitness
+## 2. Explicitness
 To be self contained the notebooks have to have a minimum of code that does not belong to `bgc_md2`,
 for instance code that starts a cluster if none is found already running.
 This code should not be buried in a library, but visible in plain sight of future users of the notebooks so that it
 can be easily replaced according to their needs. 
 
-### 3. Deduplication
+## 3. Deduplication
 This will be achieved by the advanced examples mainly by code that is well separated from the package and completely
 under user control. Some duplication will remain, where it would conflict with a clear separation of `bgc_md2` or 
 reduce explicitness. For instance it is likely that many notebooks will share  a common first cell that 
@@ -60,8 +61,8 @@ a library function, this would most likely lead to a function returning the clus
 1. burdening our libraries with code that does not realy belong to bgc_md2 (separation of concerns)
 1. obscuring the fact that any cluster would do (reducing explicitness)
 
-## Some bits of information that affects us 
-### Ports ###
+# Used tech
+## Ports 
 Server applications provide their services to ports.  
 Examples are jupyter notebook servers, dask dashboards but also normal web servers (port80). 
 The 2^16 ports are a system resource shared by all users and applicationsThere are some guidelines about who should listen where
@@ -75,7 +76,7 @@ Our strategy will therefore be to specify to which ports the notebook and the da
 our forwarding accordingly. The only thing to avoid is that two people try to use the same port.
 A simple scheme of a personalized port range will avoid this.
   
-### (DASK) clusters
+## (DASK) clusters
 To keep our examples scaleable to supercomputers (with many network connected nodes **without shared memory**) we always use
 `dask.distributed.LocalCluster` instances, (even though Antakya and matagorda are just multisocket multicore machines).
 The same dask cluster can be used by many clients (in many notebooks) simultanuously, so how many dask clusters should we run? 
@@ -104,12 +105,12 @@ There are some possibilities.
     Especially for some of our notebooks, which require a cluster started with certain arguments (Holgers CARDAMOM notebooks) 
     it is essecntial to provide the code to start such a cluster in the notebook. (the opposite would require the user to "know" that the notebook requires a special running cluster.
 
-### Tmux ###
+## Tmux
 To achieve robustness and general independence from network connections to the server we use a terminal multiplexer for all text based output on the server [tmux](https://github.com/tmux/tmux/wiki). From the perspective of the server the tmux server looks like a local console window running on the server, to which it can send its output regardless of any network connection.
 The network connection is only necessary when we connect to the tmux server from the terminal on a different machine.
 Two tmux commands that you will find using a lot in our scenario are `tmux ls` (list sessions) and `tmux attach -t ${NameOfYourSession}`
 
-### SSH local port forwarding
+## SSH local port forwarding
 * Since we use 'local ssh port forwarding' the start messages from a jupyter server about where to point the browser
   are most likely wrong, because they refer to the  port on the remote server. The server has no information to 
   which local port is forwarded. 
@@ -146,7 +147,7 @@ The purpose of the examples is to show:
   ```
   This will make it work even if you do not have a vpn connection to the institute (using login as jumphost).
 
-## Order of the examples:
+## Order 
 * [ex0](examples/ex0)
 * [ex1](examples/ex1)
 * [ex2](examples/ex2)
@@ -168,24 +169,3 @@ to show the development of the final solution, which would be a bit hard to read
 At the end we will have built some functions executable on the client that automate all the above steps.
 But even this final code [ex5](#examples/ex5) is not intended to be used as a black box. 
 
-
-
-
-% 
-% # Motivational Example with notebooks: most general usage scenario:#
-% Assume you have two or more different conda environments on matagorda and
-% running at least one notebook for each.  This has the following consequences:
-% Since the jupyter (notebook or lab) server is started in the same conda env
-% that is used by the code in the notebooks you wll have to start two different
-% jupyter servers on matagorda.  They will use two different ports jsp1, jsp2 on
-% matagorda.  If the notebooks use a dask clients every client will use its own
-% dashboard with its own port.  All clients may (and should) use the same
-% scheduler or cluster.  
-% 
-%  We have the following summary of port consumption on one machine for one user:
-%  ```n_envs + n_client + n_cluster```   where 
-%  - `n_envs` is the number of conda environments with their respective jupyterservers
-%  - `n_clients` is the number of clients (and equal to the number of notebooks that use dask)
-% 
-% To be able to connect to these servers with the browser on your local machine you will have to forward the two ports. 
-  
