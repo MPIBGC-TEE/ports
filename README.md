@@ -1,3 +1,18 @@
+Table of Contents
+=================
+
+      * [Purpose](#purpose)
+         * [1. Separation of concerns](#1-separation-of-concerns)
+         * [2. Explicitness](#2-explicitness)
+         * [3. Deduplication](#3-deduplication)
+      * [Some bits of information that affects us](#some-bits-of-information-that-affects-us)
+         * [Ports](#ports)
+         * [(DASK) clusters](#dask-clusters)
+         * [Tmux](#tmux)
+         * [SSH local port forwarding](#ssh-local-port-forwarding)
+   * [Examples](#examples)
+      * [Requirement to run the examples](#requirement-to-run-the-examples)
+      * [Order of the examples:](#order-of-the-examples)
 
 
 
