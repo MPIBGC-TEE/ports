@@ -1,9 +1,11 @@
+
+
+
 ## Purpose
 The package contains examples to facilitate remote computing on matagorda and Antakya mainly concerned with the use of 
 [bgc_md2](https://github.com/MPIBGC-TEE/bgc_md2). 
 It serves as a gentle use case specific introduction to some of the tools (ssh,tmux,ipython,dask.distributed.LocalCluster). 
-Its **main purpose** however:w
-is to isolate this site and user specific code.
+Its **main purpose** however is to isolate this site and user specific code.
 This is important for the following reasons:
 ### 1. Separation of concerns
 To actually run our [bgc_md2](https://github.com/MPIBGC-TEE/bgc_md2) notebooks we are concerned with three very different things,
@@ -42,8 +44,6 @@ ensures the existence of a running dask cluster and connects to it. Although som
 a library function, this would most likely lead to a function returning the cluster connection thereby 
 1. burdening our libraries with code that does not realy belong to bgc_md2 (separation of concerns)
 1. obscuring the fact that any cluster would do (reducing explicitness)
-
-
 
 ## Some bits of information that affects us 
 ### Ports ###
@@ -112,61 +112,47 @@ The purpose of the examples is to show:
 * how to automate and deduplicate these things
 * what minimum of code is necessary in the notebooks to allow this way of remote control.
 
-# requirement
-Add the following to your ```~/.ssh/config''' with  YourInstituteLogin and  YourMatagordaLogin
-replaced by the correct values:
-```sshconfig
-Host    login
-	HostName login.bgc-jena.mpg.de
-        User YourInstituteLogin
+## Requirement to run the examples
+* clone this repository on your local computer and matagorda. (The examples contain code that runs on the server(matagorda) and 
+  also code that runs on your local machine, so it will be convenient not to have to copy it around. The examples will assume
+  the code to be checked out in you home (`~/ports/`).
+  
+* Add the following to your `~/.ssh/config` with  YourInstituteLogin and  YourMatagordaLogin
+  replaced by the correct values:
+  ```sshconfig
+  Host    login
+	  HostName login.bgc-jena.mpg.de
+          User YourInstituteLogin
 
-Host    matagorda-from-home
-	ProxyCommand ssh -q -W %h:%p login
-	HostName matagorda.bgc-jena.mpg.de
-        User YourMatagordaLogin
-```
-This will make it work even if you do not have a vpn connection to the institute (using login as jumphost).
-
-##The order of the eamples:
-* We start with a manual (unautomated) example, that 
-  demonstates the commands (on client and server) necessary to 
-  * open a tmux window
-  * activate the (conda) environment
-  * start an ipython session (or notebook)
-  * connect via ssh from a client machine over the network 
-  * redirect the web output of the dask dashboard (and jupyter server) to a port on the local machine
-  * start the browser on the local client with the correct port number.
-  We show the annoying aspects of it and use them
-  to motivate gradual improvements leading to the next implementation.
-* After the example code has improved overs several iterations (ex1 to ex4) 
-  we will have build a single shell command executable on the client that
-  automates all the above steps`.
-  But even this final code is not intended to be used as a black box tool but as an example.
-
-## 0. Example without any infrastructure.
-* open a terminal and open a shell on the remote machine
-  ```ssh matagorda-from-home'''
-* start a tmux session 
-  ``` tmux '''
-* activate the conda env
-  ```conda activate bgc_md2'''
-* start an ipython session
-  ```ipython'''
-* start a cluster 
-  ```python
-  from dask.distributed import LocalCluster, Client
-  cluster=LocalCluster()
-  '''
-* ask for the dashboard address
-  ```python
-  cluster.dashboard_link
-  '''
-* open another terminal
-  and forward a local port (we arbitrarily chose 8080)  on your machine to the dashboard port returned by  the previous command (here 36167 but this will be chosen by ``` LocalCluster()''' and can possibly be different from session to session  )
+  Host    matagorda-from-home
+	  ProxyCommand ssh -q -W %h:%p login
+	  HostName matagorda.bgc-jena.mpg.de
+          User YourMatagordaLogin
   ```
-  ssh -L 8080:localhost:36167 matagorda-from-home
-  '''
-* point your browser to `http://localhost:8080` and see the dashboard.
+  This will make it work even if you do not have a vpn connection to the institute (using login as jumphost).
+
+## Order of the examples:
+* [ex0](#examples/ex0)
+* [ex1](#examples/ex1)
+* [ex2](#examples/ex2)
+* [ex3](#examples/ex3)
+* [ex4](#examples/ex4)
+* [ex5](#examples/ex5)
+
+We start with a  manual unautomated example [ex0](#examples/ex0), that 
+demonstates the commands (on client and server) necessary to 
+* open a tmux window
+* activate the (conda) environment
+* start an ipython session (or notebook)
+* connect via ssh from a client machine over the network 
+* redirect the web output of the dask dashboard (and jupyter server) to a port on the local machine
+* start the browser on the local client with the correct port number.
+We show the annoying aspects of it and use them to motivate gradual improvements leading to the next implementation.
+The example code will be improved over several intermediate iterations (ex1 to ex4) that can later be discarded and are only there
+to show the development of the final solution, which would be a bit hard to read ohterwise.
+At the end we will have built some functions executable on the client that automate all the above steps.
+But even this final code [ex5](#examples/ex5) is not intended to be used as a black box. 
+
 
 
 
