@@ -132,14 +132,14 @@ The purpose of the examples is to show:
   This will make it work even if you do not have a vpn connection to the institute (using login as jumphost).
 
 ## Order of the examples:
-* [ex0](#examples/ex0)
-* [ex1](#examples/ex1)
-* [ex2](#examples/ex2)
-* [ex3](#examples/ex3)
-* [ex4](#examples/ex4)
-* [ex5](#examples/ex5)
+* [ex0](examples/ex0)
+* [ex1](examples/ex1)
+* [ex2](examples/ex2)
+* [ex3](examples/ex3)
+* [ex4](examples/ex4)
+* [ex5](examples/ex5)
 
-We start with a  manual unautomated example [ex0](#examples/ex0), that 
+We start with a  manual unautomated example [ex0](examples/ex0), that 
 demonstates the commands (on client and server) necessary to 
 * open a tmux window
 * activate the (conda) environment
