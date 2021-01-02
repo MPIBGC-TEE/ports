@@ -1,26 +1,38 @@
-This example runs one scheduler(cluster) and uses it in the same session. 
-Here we let the dask cluster find a port where it can serve the dashboard.
 
 ## 0. Example without any infrastructure.
+This example runs one scheduler(cluster) and uses it in the same session.
+Here we let the dask cluster find a port where it can serve the dashboard.
+So we can not know the port number in advance. This has the unwelcome effect that we always have to
+adapt the portforwarding command.
+
+### steps
 * open a terminal and open a shell on the remote machine:
-  ```ssh matagorda-from-home```
+  ```
+  ssh matagorda-from-home
+  ```
 * start a tmux session on matagorda  
-  ``` tmux ```
+  ```
+  tmux
+  ```
 * activate the conda env
-  `conda activate bgc_md2`
+  ```
+  conda activate bgc_md2
+  ```
 * start an ipython session
-  ```ipython```
+  ```
+  ipython
+  ```
 * start a cluster and ask for the (dynamic) dashboard address
-  ```python
-  %laod server_start_cluster.py
+  ```ipython
+  %load server_start_cluster.py
   ```
   (Hit enter twice...)
 * open another terminal
-  and forward a local port (we arbitrarily chose 8080)  on your machine to the dashboard port returned by  the previous command (here 36167 but this will be chosen by ``` LocalCluster()''' and can possibly be different from session to session  )
+  and forward a local port (we arbitrarily chose 8081)  on your machine to the dashboard port returned by  the previous command (e.g. 36167 but you have to **replace** this with the one chosen by `LocalCluster()` which will generally differ from session to session  )
   ```
-  ssh -L 8080:localhost:36167 matagorda-from-home
+  ssh -L 8081:localhost:36167 matagorda-from-home
   ```
-* point your browser to `http://localhost:8080` and see the dashboard.
+* point your browser to `http://localhost:8081` and see the dashboard.
 
 * create a client and run some code (watch the dashboard)
   ```ipython
@@ -30,3 +42,8 @@ Here we let the dask cluster find a port where it can serve the dashboard.
   ```ipython
   %load ~/ports/examplex/ex0/server_use_cluster_2.py
   ```
+
+### Wishlist:
+
+* automate the ssh port forwarding by choosing the ports beforehand (thereby making it predictable)
+* reuse the same cluster from different sessions. (This will involve an additional port number to connect to the right scheduler)
