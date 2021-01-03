@@ -1,7 +1,7 @@
 from dask.distributed import LocalCluster #, Client
 
 # The following numbers are userspecific (for mm), 
-my_dashboard_address = 'localhost:8912'
+my_dashboard_address = 'localhost:8911'
 my_scheduler_port =8900
 cluster = LocalCluster(
     scheduler_port=int(my_scheduler_port),

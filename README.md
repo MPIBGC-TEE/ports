@@ -166,7 +166,7 @@ The purpose of the examples is to show:
 * [ex4](examples/ex4)
 * [ex5](examples/ex5)
 
-We start with the manual unautomated examples [ex0](examples/ex0) (for ipython) and [ex0_b](examples/ex0_b) (for a notebook that)
+We start with the manual unautomated examples [ex0](examples/ex0) (for ipython) and [ex0_b](examples/ex0_b) (for a notebook) that
 demonstate the commands (on client and server) necessary to
 * connect via ssh from a client machine over the network
 * open a tmux session on the server.
