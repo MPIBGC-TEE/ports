@@ -1,13 +1,13 @@
-# The following numbers are userspecific (for mm), 
+# The following numbers are userspecific (for mm),
 localPort=8081
-my_scheduler_port=8900 
+my_scheduler_port=8900
 my_dashboard_port=8911
 remote_commands="\
 export my_scheduler_port=${my_scheduler_port};
 export my_dashboard_address=localhost:${my_dashboard_port};
 tmux new-session -d ;
 tmux rename-window -t 0 'Main';
-tmux send-keys -t 'Main' 'conda-shell' C-m
+tmux send-keys -t 'Main' 'conda Space activate Space bgc_md2' C-m
 tmux send-keys -t 'Main' 'ipython' C-m
 tmux attach-session -t  $SESSION:0"
 
