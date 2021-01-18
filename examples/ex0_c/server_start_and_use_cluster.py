@@ -1,10 +1,12 @@
-from dask.distributed import Client
-import os
-env = os.environ
-my_scheduler_port = env['my_scheduler_port_1'] 
-my_scheduler_address = 'localhost:'+my_scheduler_port
-client = Client(my_scheduler_address)
-print(client)
+import dask.array
+from dask.distributed import LocalCluster,Client 
+if 'cluster' not in dir():
+    cluster = LocalCluster()
+
+client = Client(cluster)
+
+from ports.server_helpers import print_commands
+print_commands(cluster,local_port=8880)
 
 # do something with the client
 import dask.array

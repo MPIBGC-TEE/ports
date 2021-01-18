@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # vim:set ff=unix expandtab ts=4 sw=4:
 
-# This is the standard pyhon install script.
-# Only if it does not work use the shell script ../install_bgc_md.sh in the folder above
-# Keep the requirements.freeze clean and to a minimum.
-
 from setuptools import setup,find_packages
 def readme():
     with open('README.md') as f:
@@ -18,7 +14,8 @@ setup(name='ports',
         author='Markus',
         author_email='markus.mueller.1.g@gmail.com',
         url='https://github.com/MPIBGC-TEE/ports.git',
-        packages=find_packages(), #find all packages (multifile modules) recursively
+        packages=find_packages('src'), #find all packages (multifile modules) recursively
+        package_dir={'': 'src'},
         #py_modules=['external_module'], # external_module.py is a module living outside this dir as an example how to iclude something not 
         classifiers = [
         "Programming Language :: Python :: 3",
@@ -31,7 +28,7 @@ setup(name='ports',
         ],
         entry_points={
         'console_scripts': [
-                'render= bgc_md.reports:render_parse'
+                'jupyter_forwarding=ports.client_helpers:jupyter_forwarding',
                 ]
         },
         install_requires=[],
