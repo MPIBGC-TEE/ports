@@ -1,11 +1,10 @@
-from subprocess import check_call, run, Popen, PIPE, check_output
+from subprocess import check_call, run, check_output
 import multiprocessing as mp
 
-def f(q):
-    rec=run(['nc', '-l', '2400'],capture_output = True)
-    #print('f','rec',type(rec),int(rec.stdout))
-    q.put(rec.stdout)
 
+def f(q):
+    rec=run(['nc', '-l', '2400'],capture_output=True)
+    q.put(rec.stdout)
 
 
 def remote_result(remote_command, ssh_host_name):
@@ -13,18 +12,20 @@ def remote_result(remote_command, ssh_host_name):
     p = mp.Process(target=f, args=(q,))
     p.start()
 
-    #remote_command = "echo '8888 8911 8912'| nc -q1 localhost 2300"
     send_command = remote_command + "| nc -q1 localhost 2300"
     check_call(
         [ 'ssh','-R', ' 2300:localhost:2400', ssh_host_name, send_command ]
     )
-    res =str(q.get(), 'utf8')
+    res = str(q.get(), 'utf8')
     p.join()
     return res
 
 
 def list_notebook_servers(ssh_host_name):
-    output = check_output(f"ssh -G {ssh_host_name} | grep '^user '", shell=True)
+    output = check_output(
+        f"ssh -G {ssh_host_name} | grep '^user '",
+        shell=True
+    )
     remote_login = str(output.strip(), 'utf8').split(' ')[1]
     #
     # find the pids of jupyter notebook instances of this user
@@ -63,24 +64,23 @@ def jupyter_forwarding(localBasePort=8889):
     #
     ssh_host_names = ['matagorda-from-home', 'antakya-from-home']
     port_dict = {
-        host: list_notebook_servers(host) 
+        host: list_notebook_servers(host)
         for host in ssh_host_names
     }
     #
     # filter out the host: ports combies where ports is not empth
     combies = [
         (host, port)
-        for host in ssh_host_names if len(port_dict[host]) > 0 
+        for host in ssh_host_names if len(port_dict[host]) > 0
         for port in port_dict[host]
     ]
     print(combies)
 
-    localPorts= [
+    localPorts = [
         localBasePort+offset
-        for offset,_ in enumerate(combies)
+        for offset, _ in enumerate(combies)
     ]
 
-    
     command_tuples = [
         (
             'ssh',
@@ -96,10 +96,11 @@ def jupyter_forwarding(localBasePort=8889):
     print('The following commands are active as long as this script runs:')
     print('\n'.join(commands))
 
-    urls  = [f'localhost:{lp}' for lp in localPorts]
+    urls = [f'localhost:{lp}' for lp in localPorts]
     print('#####################################')
     print('Point your browser to:')
     print('\n'.join(urls))
+
     def g_maker(command_tuple):
         def g():
             run(command_tuple)
@@ -111,5 +112,4 @@ def jupyter_forwarding(localBasePort=8889):
 
     for p in processes:
         p.join()
-
 
