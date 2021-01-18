@@ -5,8 +5,8 @@ if 'cluster' not in dir():
 
 client = Client(cluster)
 
-from ports.server_helpers import print_commands
-print_commands(cluster,local_port=8880)
+# from ports.server_helpers import print_commands
+# print_commands(cluster,local_port=8880)
 
 # do something with the client
 import dask.array

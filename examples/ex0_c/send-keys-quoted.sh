@@ -39,6 +39,10 @@ function make_remote_tmux_command {
 	fi
 }	
 
+# This is the actual command to open a remote tmux session (either named or not)
+# You could easily adapt it to start an ipython or jupyter by sending more commands to the tmux server
+# This is not done here sinse this is mainly personal prference.
+# In the best scenario these sessions do not have to be started too frequently
 function tmux_matagorda_bgc_md2 {
 	if [ $# -eq 1 ]
 	then

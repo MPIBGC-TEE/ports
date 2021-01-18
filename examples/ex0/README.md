@@ -10,8 +10,9 @@ adapt the portforwarding command.
   ```
   ssh matagorda-from-home
   ```
-* start a tmux session on matagorda  
+* start a tmux session on matagorda and change in this directory.  
   ```
+  cd  ~/ports/examples/ex_0
   tmux
   ```
 * activate the conda env
@@ -44,6 +45,12 @@ adapt the portforwarding command.
   ```
 
 ### Wishlist:
-
-* automate the ssh port forwarding by choosing the ports beforehand (thereby making it predictable)
-* reuse the same cluster from different sessions. (This will involve an additional port number to connect to the right scheduler)
+Wishlist:
+* Automate
+  * the `tmux` and `conda activate` commands.
+* Assist in
+  * the creation of the client ssh forwarding command for the dashboard server.
+  * the translation of the url to the dashboard
+* make the python code execuatable as a script with
+```python server_start_cluster.py``` or
+```ipython -i server_start_cluster.py```

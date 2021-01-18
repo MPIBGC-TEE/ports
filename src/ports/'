@@ -1,0 +1,84 @@
+# 8889 is just chosensince the jupyter server chooses 8888
+# so if you run a notebook locally it will be already in use.
+# you can change it without affecting anyone...
+local_base_port=8889
+#
+
+#function ssh-tmux-ipython {
+#	local remote_commands="\
+#	export my_scheduler_port=${remote_scheduler_port};
+#	export my_dashboard_address=localhost:${remote_dashboard_port};
+#	tmux new-session -d ;
+#	tmux rename-window -t 0 'Main';
+#	tmux send-keys 'conda Space activate Space bgc_md2' C-m
+#	tmux send-keys -t 'Main' 'ipython' C-m
+#	tmux attach-session -t  $SESSION:0"
+#
+#
+#	local ssh_command="ssh -L ${local_dashboard_port}:localhost:${remote_dashboard_port} matagorda-from-home -t '${remote_commands};'"
+#	echo $ssh_command
+#	eval "${ssh_command}"
+#};
+function make_tmux_commands {
+	local SESSION=$1
+	local tmux_payload=$2
+	local remote_commands="\
+	tmux attach -t ${SESSION} || tmux new-session -d -s ${SESSION};
+	${tmux_payload};
+	tmux attach-session -t  $SESSION:0"
+	echo $remote_commands
+}
+function ssh_command {
+	local ssh_host_name=$1
+	local remote_commands=$2
+	local ssh_command="ssh ${ssh_host_name} -t '${remote_commands};'"
+ 	echo ${ssh_command}
+}
+
+#function remote_jupyter {
+#	local ssh_host_name=$1
+#	local remote_commands="\
+#	tmux new-session -d;
+#	tmux rename-window -t 0 'jupyter-server';
+#	tmux send-keys 'conda Space activate Space bgc_md2' C-m;
+#	tmux send-keys -t 'jupyter-server' 'jupyter Space notebook Space --no-browser' C-m;
+#	tmux attach-session -t  $SESSION:0"
+#	local ssh_command="ssh ${ssh_host_name} -t '${remote_commands};'"
+#	echo $ssh_command
+#}
+#
+#function matagorda-jupyter {
+#	local ssh_command=$(remote_jupyter 'matagorda-from-home' 'jupyter1')
+#	#echo $ssh_command
+#	eval "${ssh_command}"
+#}
+
+function matagorda-tmuxx {
+	#local session=${1-''}
+	local session=''
+	local tmux_payload=''
+	local remote_tmux=$(make_tmux_commands ${tmux_payload})
+	#echo $remote_tmux
+	local ssh_command=$(ssh_command 'matagorda-from-home' ${remote_tmux})
+	#echo $ssh_command
+	eval "${ssh_command}"
+}
+
+#function matagorda-ipython{
+#	tmux_commands=
+#	local ssh_command=$(remote_tmux 'matagorda-from-home' 'ipython1')
+#	echo $ssh_command
+#	eval "${ssh_command}"
+#}
+#
+#function matagorda-jupyter {
+#	local remote_commands="\
+#	tmux new-session -d ;
+#	tmux rename-window -t 0 'jupyter-server';
+#	tmux send-keys 'conda Space activate Space bgc_md2' C-m
+#	tmux send-keys -t 'jupyter-server' 'jupyter Space notebook Space --no-browser' C-m
+#	tmux attach-session -t  $SESSION:0"
+#	local ssh_command="ssh ${ssh_host_name} -t '${remote_commands};'"
+#	echo $ssh_command
+#	eval "${ssh_command}"
+#};

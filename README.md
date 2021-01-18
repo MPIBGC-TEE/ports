@@ -65,7 +65,7 @@ a library function, this would most likely lead to a function returning the clus
 The purpose is achieved by some small helper functions that translate the jupyter provided urls and generate and run ssh forwarding commands for the users. This is completely optional and does not necessitate any additional agreement between the users but keeps this kind of code out of our main packages (bgc_md2,CompartmentalSystems) and visible if it is used.
 The main usage example is [ex0_c](examples/ex0_c).
 
-# Involved technology
+# Involved technology and tools
 ## Ports
 Server applications provide their services to ports.  
 Examples are jupyter notebook servers, dask dashboards but also normal web servers (port80) and secure shells(22).
@@ -146,14 +146,14 @@ after a disconnect much easier. You can even automate tmux sessions by the `send
 # Examples
 
 ## Requirements to run the examples
-* clone this repository on your local computer and matagorda. (The examples contain code that runs on the server(matagorda) and
+* clone this repository on your local computer, matagorda and antakya
+  (The examples contain code that runs on the servers (matagorda and antakya) and
   also code that runs on your local machine, so it will be convenient not to have to copy it around. The examples will assume
   the code to be checked out in  (`~/ports/`) and installed  both on the client (your computer) and on the server (there preferably into the `bgc_md2` environment). To install run `python setup.py develop` in `~/ports/`.
   `bgc_md2` does *intentionally* not depend on this package.
   However a small part of its functionality is useful in notebooks to make your live a bit easier.
   (We could easily leave the two lines as comments in all our notebooks).
-  If you want to use the example shell scripts permanently add
-  `source ~/ports
+  If you want to use the example shell scripts you source them from your `~/.bashrc`
 
 * Add the following to your `~/.ssh/config` with  YourInstituteLogin and  YourMatagordaLogin
   replaced by the correct values:
