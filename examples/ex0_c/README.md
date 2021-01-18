@@ -36,13 +36,24 @@ python package (which has to be installed)
 
 * In the notebook start a cluster  
   ```ipython
-  %laod server_start_cluster.py
+  %load '~/ports/examples/ex0_c/server_start_and_use_cluster.py'
   ```
+* Uncomment the two commented lines
+* change the local port if you have to
+* execute the code
+  This will print out and ssh command to forward to a local port
+  and a link.
+
+* execute the suggested ssh command in a new shell on your client.
+* click the link
 
 
 
 
-  Wishlist?:
+
+
+
+Wishlist?:
   * Automate the `tmux` and `conda activate` and `jupyter` commands.
   How this can be done (in a generalizable way) is shown in this [script](send_keys_quoted.sh), but since it
   is a thing of personal preference it is only provided as a blueprint.
