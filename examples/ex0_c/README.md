@@ -34,18 +34,32 @@ python package (which has to be installed)
 * paste the adresses into your browser's address line.
 
 
-* In the notebook start a cluster  
-  ```ipython
-  %load '~/ports/examples/ex0_c/server_start_and_use_cluster.py'
+* Start the notebook  
   ```
-* Uncomment the two commented lines
-* change the local port if you have to
-* execute the code
-  This will print out and ssh command to forward to a local port
+  '~/ports/examples/ex0_c/start_and_use_cluster.py'
+  ```
+* change the local port in the second cell if you have to
+* execute the code (also the first cell otherwise you will get an error)
+  This will print out an ssh command to forward to a local port
   and a link.
 
 * execute the suggested ssh command in a new shell on your client.
 * click the link
+* execute the last cell of the link
+
+
+**NOTE** :
+```python
+try:
+    from ports.server_helpers import print_commands
+    print_commands(cluster,local_port=8880)
+
+except ImportError as e:
+    pass  # even it the module doesn't exist, dont make a fuss
+```
+Is what could go into our `bgc_md2` notebooks and preferably live in a separate
+cell at the top.  ( It avoids a dependency on the `ports` package but allows us to use it for our convenience )
+This piece of code works also in python scripts or ipython sessions.
 
 
 
