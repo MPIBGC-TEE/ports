@@ -7,13 +7,17 @@ This time this will be done by a small command line tool that is the main conten
 python package (which has to be installed)
 
 * open a terminal and open a shell on the remote machine:
-  ```ssh matagorda-from-home```
+  `ssh matagorda-from-home`
 * start a tmux session on matagorda
-  ``` tmux ```
+  `tmux `
 * activate the conda env
   `conda activate bgc_md2`
 * start a jupyter notebook/lab server
-  ```jupyter notebook --no-browser```
+  `jupyter notebook --no-browser`
+
+* repeat the previous steps (start another jupyter-notebook server (possibly in another environment))
+  and then repeat again on antakya so that you have at least 4 sessions running...
+  
 * open another (local) terminal and
   activate the conda environment in which you installed the `ports` package.
   For simplicity lets assume you  put it in  `bgc_md2` (on your local machine)
