@@ -12,7 +12,7 @@ Table of Contents
       * [Tmux](#tmux)
       * [SSH local port forwarding](#ssh-local-port-forwarding)
    * [Examples](#examples)
-      * [Requirement to run the examples](#requirement-to-run-the-examples)
+      * [Requirements to run the examples](#Requirement-to-run-the-examples)
       * [Order](#order)
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
@@ -77,8 +77,7 @@ server and 8787 for the dask dashboard server) or (in case somebody has already 
 machine )an unpredictable dynamic port from the dynamic range.
 This semi predictable situation makes a completely manual solution very painful but a complete automation very complex.
 The code in this package goes for a solution that necessitates and allows user interaction, but makes it a lot less painful.
-
-Its main advantage is that no policies or contracts between users are necessary. Even the package itself does not have to be used by all the matagorda, Antakya users. If you use it in a notebook (usually 2 lines of code ) I would even recommend to turn it into a comment afterwards.  
+The main advantage is that no policies or contracts between users are necessary. Even the package itself does not have to be used by all the matagorda, Antakya users. 
 
 ## (DASK) clusters
 To keep our bgc_md2 notebooks scalable to supercomputers (with many network connected nodes **without shared memory**) we always use **distributed** schedulers.
@@ -142,6 +141,10 @@ after a disconnect much easier. You can even automate tmux sessions by the `send
 ## ipython
   * For long computations with uncertain success it is usefull to use the `ipython` interpreter.
 
+## This package
+The package provides a shell command `jupyter_forwarding` which finds running `jupyter-lab` or `jupyter-notebook` instances on `matagorda` or `antakya` running on your rmote username
+ as configured in your `~/.ssh/config`. It will then create as many ssh forwarding commands, start them in parallel and print out links you can paste into your browser.
+ On the severside it profides an (independently usable) python function to printout a ssh forwarding command and url for the dask dashboard. (see example [ex0_c](examples/ex0_c))
 
 # Examples
 
@@ -176,6 +179,14 @@ after a disconnect much easier. You can even automate tmux sessions by the `send
   This will make it work even if you do not have a vpn connection to the institute (using login as jumphost).
   It will also work insinde the institute or the vpn. (although you don't need `login` )
 
+* You should also use ssh keys on login, matagorda and Antakya
+  Otherwise the main command `jupyter_forwarding` provided by the package, will make you type your password prohibitively frequently.
+  * on your local machine
+    ```
+    ssh-copy-id matagorda-from-home
+    ssh-copy-id antakya-from-home
+    ```
+    (if you do not have a key-pair you have to create on first `ssh-keygen` )
 * It is assumed that you have created a conda environment `bgc_md2` that contains
     `ipython`, `jupyter` `numpy` and `dask`.
 
