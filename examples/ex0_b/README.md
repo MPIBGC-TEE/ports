@@ -34,11 +34,11 @@ So we have two unpredictable port-numbers and have two manual ssh port commands 
 
 * create a client and run some code (watch the dashboard)
   ```ipython
-  %load ~/ports/examplex/ex0/server_use_cluster_1.py
+  %load ~/ports/examples/ex0/server_use_cluster_1.py
   ```
 * Run some more code (watch the dashboard)
   ```ipython
-  %load ~/ports/examplex/ex0/server_use_cluster_2.py
+  %load ~/ports/examples/ex0/server_use_cluster_2.py
   ```
 
   Wishlist:
