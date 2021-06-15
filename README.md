@@ -26,7 +26,7 @@ In particular the purpose is threefold:
 ## 1. Separation of concerns
 To actually run our [bgc_md2](https://github.com/MPIBGC-TEE/bgc_md2) notebooks we are concerned with three very different things,
 of which only one really belongs to [bgc_md2](https://github.com/MPIBGC-TEE/bgc_md2) .
-The other too threaten its long term integrity:
+The other two threaten its long term integrity:
    1. code USING a dask cluster (99.9 percent of the notebook / script code
       This is the only code that definitely belongs to `bgc_md2` and the only one that
       is portable.
